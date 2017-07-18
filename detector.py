@@ -1,6 +1,3 @@
-# Omar Sagga (osagga@bu.edu)
-# Part 3, Lab 5. CS558 Spring 2017
-
 from dpkt.pcap import Reader
 from dpkt.tcp import TCP, TH_SYN, TH_ACK
 from dpkt.ethernet import Ethernet
