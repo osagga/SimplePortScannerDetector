@@ -5,9 +5,14 @@ from dpkt.dpkt import NeedData
 from socket import inet_ntoa as ntoa
 from sys import argv
 
+
 def parsePackets(filename, scaler):
-    '''Given a pcap filename, this function will parse the packets and return the set of IPs that may have attemped to preform port scanning.'''
-	
+    '''
+        Given a pcap filename, this function will parse the packets
+        and return the set of IPs that may have attemped to preform
+        port scanning.
+    '''
+
     try:
         filehandler = open(filename, 'rb')
     except OSError:
@@ -29,13 +34,13 @@ def parsePackets(filename, scaler):
             continue
 
         # Test if the packet is IPv4
-        if eth.type!=2048:
+        if eth.type != 2048:
             continue
 
         ip = eth.data
 
         # Test if the packet has TCP layer
-        if ip.p!=6:
+        if ip.p != 6:
             continue
 
         src = ntoa(ip.src)
@@ -43,8 +48,8 @@ def parsePackets(filename, scaler):
 
         tcp = ip.data
 
-        syn_flag = ( tcp.flags & TH_SYN ) != 0
-        ack_flag = ( tcp.flags & TH_ACK ) != 0
+        syn_flag = (tcp.flags & TH_SYN) != 0
+        ack_flag = (tcp.flags & TH_ACK) != 0
 
         if syn_flag and not ack_flag:
             # To check if the packet is only SYN
@@ -71,21 +76,23 @@ def parsePackets(filename, scaler):
         c_syn = SYN_Count[key]
         c_synAck = SYNACK_Count[key]
         if c_syn > (scaler * c_synAck):
-            # If the number of SYN requests is at least more than 'scaler' times the number of SYN,ACK responds
+            # If the number of SYN requests is at least more than 'scaler'
+            # times the number of SYN,ACK responds
             setIP.add(key)
     return setIP
 
+
 def main():
-	try:
-		scaler = int(argv[1])
-		pcapFilename =  argv[2]
-	except IndexError:
-		print "Please make sure to pass a scaler value and capture file as arguments."
-		return
-	retSet = parsePackets(pcapFilename, scaler)
-	for IP in retSet:
-		print IP
-	return
+    try:
+        scaler = int(argv[1])
+        pcapFilename = argv[2]
+    except IndexError:
+        print "Please make sure to pass a scaler value and capture file as arguments."
+        return
+    retSet = parsePackets(pcapFilename, scaler)
+    for IP in retSet:
+        print IP
+    return
 
 if __name__ == "__main__":
     main()
